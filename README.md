@@ -33,35 +33,47 @@ A guardrail is any callable `guard(text) -> 0 | 1`. Drop yours in, run one comma
 better for miss-rate and over-refusal; higher for F1. Reproduce with `python run_baselines.py`.
 
 <!-- LEADERBOARD:START -->
+**Fully held-out guards** (ranked by F1):
+
 | # | Guardrail | Miss-rate ↓ | Over-refusal (all) ↓ | **Over-refusal: security-adjacent** ↓ | F1 ↑ | TR miss | TR over-refusal |
 |---|-----------|:-----------:|:--------------------:|:-------------------------------------:|:----:|:-------:|:---------------:|
 | 1 | **[protectai-deberta-v2](https://huggingface.co/protectai/deberta-v3-base-prompt-injection-v2)** | 0.02 | 0.18 | **0.40** | 0.94 | 0.02 | 0.25 |
-| 2 | **AltaySec-detector** \* | 0.00 | 0.23 | **0.70** | 0.94 | 0.00 | 0.23 |
-| 3 | **[jackhhao-jailbreak](https://huggingface.co/jackhhao/jailbreak-classifier)** | 0.46 | 0.12 | **0.25** | 0.67 | **0.83** | 0.00 |
-| 4 | **keyword** | 0.88 | 0.12 | **0.38** | 0.20 | 0.91 | 0.08 |
-| 5 | **regex-rules** | 0.91 | 0.10 | **0.30** | 0.16 | 0.90 | 0.10 |
+| 2 | **[jackhhao-jailbreak](https://huggingface.co/jackhhao/jailbreak-classifier)** | 0.46 | 0.12 | **0.25** | 0.67 | **0.83** | 0.00 |
+| 3 | **keyword** | 0.88 | 0.12 | **0.38** | 0.20 | 0.91 | 0.08 |
+| 4 | **regex-rules** | 0.91 | 0.10 | **0.30** | 0.16 | 0.90 | 0.10 |
+
+*In-distribution reference — **not ranked**:*
+
+| Guardrail | Miss-rate | Over-refusal (all) | Over-refusal: security-adjacent | F1 |
+|-----------|:---------:|:------------------:|:-------------------------------:|:--:|
+| AltaySec-detector \* | 0.00 | 0.23 | **0.70** | 0.94 |
 <!-- LEADERBOARD:END -->
 
-> **\* Fairness note.** `AltaySec-detector` was *trained* on this benchmark's injection payloads
+> **\* Why it's unranked.** `AltaySec-detector` was *trained* on this benchmark's injection payloads
 > and its *plain* benign prompts, so its 0.00 miss-rate is **in-distribution** — an upper bound, not
-> generalization. **Every other guard, including ProtectAI's and jackhhao's popular open models, is
-> fully held-out.** The **security-adjacent** column is held-out for *all* guards, so it's the
-> fair, un-gameable comparison. See [Limitations](#-honesty--limitations).
+> generalization — and it would be unfair to rank it against fully held-out models. It's shown only
+> as a reference. Its **security-adjacent** over-refusal (0.70) is still meaningful because that
+> split is held-out for *every* guard, including this one. See [Limitations](#-honesty--limitations).
 
 ## 🔎 Two findings that only show up on the second axis
 
 **1. The over-refusal cliff.** Nobody over-blocks *plain* requests — but on *security-adjacent*
 text (legitimate content that discusses or quotes attacks), over-refusal explodes:
 
-| Guard | Over-refusal on *plain* requests | Over-refusal on *security-adjacent* text |
-|-------|:--------------------------------:|:----------------------------------------:|
-| regex-rules | 6% | **30%** |
-| keyword | 8% | **38%** |
-| **protectai-deberta-v2** (industry standard) | 8% | **40%** |
-| AltaySec-detector | 0% | **70%** |
+Over-refusal is measured on **80 plain** benign prompts and **40 security-adjacent** benign prompts
+(~20 per language). The security-adjacent set was written *specifically to provoke over-refusal*, so
+read it as a stress test, not a base rate:
 
-Even ProtectAI's widely-deployed detector — a fine attack-catcher — refuses **4 out of 10** benign
-prompts that merely *mention* an attack. That trade-off is invisible on a normal attack-only
+| Guard | Over-refusal on *plain* (n=80) | Over-refusal on *security-adjacent* (n=40) |
+|-------|:------------------------------:|:------------------------------------------:|
+| regex-rules | 6% | **30%** (12/40) |
+| keyword | 8% | **38%** (15/40) |
+| **protectai-deberta-v2** (industry standard) | 8% | **40%** (16/40) |
+| AltaySec-detector | 0% | **70%** (28/40) |
+
+Even ProtectAI's widely-deployed detector — a fine attack-catcher — refuses **16 of 40** benign
+prompts that merely *mention* an attack. (n=40 is small; treat the ordering as the signal, not the
+exact percentage.) That trade-off is invisible on a normal attack-only
 benchmark, and it's exactly where guardrails break real products: security teams, SOC copilots,
 compliance tooling, and support bots that quote user reports.
 
