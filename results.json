@@ -1,0 +1,107 @@
+{
+  "keyword": {
+    "overall": {
+      "n": 337,
+      "injection_recall": 0.1198,
+      "miss_rate": 0.8802,
+      "over_refusal_rate": 0.125,
+      "benign_specificity": 0.875,
+      "f1": 0.2016,
+      "accuracy": 0.3887
+    },
+    "over_refusal_by_benign_category": {
+      "benign-plain": 0.0,
+      "benign-security-adjacent": 0.375
+    },
+    "by_language": {
+      "en": {
+        "n": 170,
+        "injection_recall": 0.1455,
+        "miss_rate": 0.8545,
+        "over_refusal_rate": 0.1667,
+        "benign_specificity": 0.8333,
+        "f1": 0.2353,
+        "accuracy": 0.3882
+      },
+      "tr": {
+        "n": 167,
+        "injection_recall": 0.0935,
+        "miss_rate": 0.9065,
+        "over_refusal_rate": 0.0833,
+        "benign_specificity": 0.9167,
+        "f1": 0.1639,
+        "accuracy": 0.3892
+      }
+    }
+  },
+  "regex-rules": {
+    "overall": {
+      "n": 337,
+      "injection_recall": 0.0922,
+      "miss_rate": 0.9078,
+      "over_refusal_rate": 0.1,
+      "benign_specificity": 0.9,
+      "f1": 0.1606,
+      "accuracy": 0.3798
+    },
+    "over_refusal_by_benign_category": {
+      "benign-plain": 0.0,
+      "benign-security-adjacent": 0.3
+    },
+    "by_language": {
+      "en": {
+        "n": 170,
+        "injection_recall": 0.0818,
+        "miss_rate": 0.9182,
+        "over_refusal_rate": 0.1,
+        "benign_specificity": 0.9,
+        "f1": 0.144,
+        "accuracy": 0.3706
+      },
+      "tr": {
+        "n": 167,
+        "injection_recall": 0.1028,
+        "miss_rate": 0.8972,
+        "over_refusal_rate": 0.1,
+        "benign_specificity": 0.9,
+        "f1": 0.1774,
+        "accuracy": 0.3892
+      }
+    }
+  },
+  "AltaySec-detector": {
+    "overall": {
+      "n": 337,
+      "injection_recall": 0.9954,
+      "miss_rate": 0.0046,
+      "over_refusal_rate": 0.2333,
+      "benign_specificity": 0.7667,
+      "f1": 0.9371,
+      "accuracy": 0.9139
+    },
+    "over_refusal_by_benign_category": {
+      "benign-plain": 0.0,
+      "benign-security-adjacent": 0.7
+    },
+    "by_language": {
+      "en": {
+        "n": 170,
+        "injection_recall": 0.9909,
+        "miss_rate": 0.0091,
+        "over_refusal_rate": 0.2333,
+        "benign_specificity": 0.7667,
+        "f1": 0.9356,
+        "accuracy": 0.9118
+      },
+      "tr": {
+        "n": 167,
+        "injection_recall": 1.0,
+        "miss_rate": 0.0,
+        "over_refusal_rate": 0.2333,
+        "benign_specificity": 0.7667,
+        "f1": 0.9386,
+        "accuracy": 0.9162
+      }
+    }
+  }
+}

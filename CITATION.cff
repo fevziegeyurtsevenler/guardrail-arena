@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "If you use this benchmark, please cite it as below."
+title: "guardrail-arena: A Two-Axis, Multilingual Benchmark for LLM Guardrails"
+authors:
+  - family-names: Yurtsevenler
+    given-names: Fevzi Ege
+    affiliation: AltaySec
+year: 2026
+url: "https://github.com/fevziegeyurtsevenler/guardrail-arena"
+license: Apache-2.0
+keywords:
+  - prompt-injection
+  - llm-security
+  - guardrails
+  - over-refusal
+  - turkish-nlp
+  - benchmark

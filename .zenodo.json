@@ -1,0 +1,11 @@
+{
+  "title": "guardrail-arena: A Two-Axis, Multilingual Benchmark for LLM Guardrails",
+  "description": "An open, reproducible benchmark that scores LLM prompt-injection guardrails on two axes at once — attack miss-rate and over-refusal (with a held-out 'security-adjacent' benign split) — in English and Turkish. Any guardrail is a callable text->0|1.",
+  "upload_type": "software",
+  "access_right": "open",
+  "license": "Apache-2.0",
+  "creators": [
+    { "name": "Yurtsevenler, Fevzi Ege", "affiliation": "AltaySec" }
+  ],
+  "keywords": ["prompt-injection", "llm-security", "guardrails", "over-refusal", "over-defense", "turkish", "benchmark", "ai-security", "owasp-llm-top10"]
+}

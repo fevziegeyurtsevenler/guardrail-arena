@@ -1,0 +1,8 @@
+# core harness needs only PyYAML (for the regex-rules baseline)
+PyYAML>=6.0
+# optional — only for the model baseline in run_baselines.py:
+#   sentence-transformers
+#   scikit-learn
+#   joblib
+#   huggingface_hub
+#   datasets
