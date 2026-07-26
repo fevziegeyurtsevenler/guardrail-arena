@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>guardrail-arena — do LLM guardrails catch attacks without over-blocking?</title>
+<meta name="description" content="A two-axis, multilingual (EN+TR) benchmark for LLM prompt-injection guardrails. Live results: the over-refusal cliff and the multilingual blind spot.">
+<meta property="og:title" content="guardrail-arena — the over-refusal cliff, visualized">
+<meta property="og:description" content="The best attack-catcher is the worst over-blocker. And an English-trained guard misses 83% of Turkish attacks. Two-axis, multilingual guardrail benchmark.">
+<meta property="og:type" content="website">
+<style>
+  :root{--bg:#08060a;--panel:#100b12;--line:#241a20;--red:#ff3b3b;--red2:#ff6b6b;--ink:#f5f0f0;--mut:#b9adb2;--mut2:#7d7378;--green:#57d9a3;--amber:#ffb057}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.6;-webkit-font-smoothing:antialiased}
+  .mono{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px}
+  a{color:var(--red2);text-decoration:none}a:hover{text-decoration:underline}
+  /* hero */
+  header{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+  header::before{content:"";position:absolute;inset:0;background:radial-gradient(ellipse 60% 60% at 82% 30%,rgba(255,31,46,.28),transparent 60%);pointer-events:none}
+  .hero{position:relative;padding:80px 0 54px}
+  .eyebrow{color:var(--red);letter-spacing:.28em;font-size:12px;font-weight:600;text-transform:uppercase}
+  h1{font-size:clamp(30px,6vw,52px);font-weight:800;letter-spacing:-1.5px;margin:14px 0 10px;line-height:1.05}
+  h1 .hl{color:var(--red)}
+  .lede{color:var(--mut);font-size:19px;max-width:64ch;margin-bottom:26px}
+  .btns{display:flex;flex-wrap:wrap;gap:12px}
+  .btn{border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:11px 18px;border-radius:11px;font-size:14px;font-weight:600}
+  .btn.primary{background:var(--red);border-color:var(--red);color:#180405}
+  .btn:hover{border-color:var(--red);text-decoration:none}
+  /* sections */
+  section{padding:52px 0;border-bottom:1px solid var(--line)}
+  .sec-label{color:var(--mut2);letter-spacing:.16em;font-size:12px;text-transform:uppercase;margin-bottom:8px}
+  h2{font-size:clamp(22px,4vw,30px);font-weight:800;letter-spacing:-.5px;margin-bottom:8px}
+  .sub{color:var(--mut);margin-bottom:26px;max-width:70ch}
+  /* stat cards */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:8px}
+  .stat{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px;position:relative;overflow:hidden}
+  .stat::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:var(--red)}
+  .stat .big{font-size:42px;font-weight:800;color:var(--red);letter-spacing:-1px;line-height:1}
+  .stat .cap{color:var(--mut);font-size:14px;margin-top:8px}
+  /* chart */
+  .chart{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 20px 14px}
+  .legend{display:flex;gap:18px;flex-wrap:wrap;margin:2px 0 16px;font-size:13px;color:var(--mut)}
+  .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;margin-right:7px;vertical-align:-1px}
+  svg{width:100%;height:auto;display:block;overflow:visible}
+  .note{color:var(--mut2);font-size:13px;margin-top:14px}
+  /* table */
+  .tbl-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
+  table{border-collapse:collapse;width:100%;min-width:640px;font-size:14px}
+  th,td{padding:12px 14px;text-align:center;border-bottom:1px solid var(--line);white-space:nowrap}
+  th{background:#0d090e;color:var(--mut);font-weight:600;font-size:12px;text-transform:uppercase;letter-spacing:.04em}
+  td:first-child,th:first-child{text-align:left}
+  tbody tr:last-child td{border-bottom:0}
+  .g-name{font-weight:700}
+  .bad{color:var(--red)}.ok{color:var(--green)}.warn{color:var(--amber)}
+  .star{color:var(--mut2)}
+  /* footer */
+  footer{padding:40px 0 60px;color:var(--mut2);font-size:13px}
+  footer a{color:var(--mut)}
+  .kicker{display:inline-block;background:rgba(255,59,59,.12);border:1px solid rgba(255,59,59,.3);color:var(--red2);border-radius:999px;padding:5px 13px;font-size:12px;font-weight:600;margin-bottom:18px}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap hero">
+    <div class="eyebrow">AltaySec · open benchmark</div>
+    <h1>Your guardrail catches attacks.<br>Does it <span class="hl">over-block</span> everyone else?</h1>
+    <p class="lede">Most prompt-injection guardrails are scored on one axis: how many attacks they catch. <b>guardrail-arena</b> scores two at once — <b>miss-rate</b> and <b>over-refusal</b> — in English <em>and</em> Turkish. A guardrail is any callable <span class="mono">text&nbsp;→&nbsp;0|1</span>. Here's what the popular ones actually do.</p>
+    <div class="btns">
+      <a class="btn primary" href="https://github.com/fevziegeyurtsevenler/guardrail-arena">★ GitHub — add your guardrail</a>
+      <a class="btn" href="https://huggingface.co/datasets/fevziegeyurtsevenler/guardrail-arena">🤗 Dataset</a>
+    </div>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <span class="kicker">Two findings you only see on the second axis</span>
+    <div class="stats">
+      <div class="stat"><div class="big">70%</div><div class="cap">of legitimate <b>security-adjacent</b> prompts wrongly blocked by the strongest attack-catcher. Nobody over-blocks plain requests — this only shows up when text <em>talks about</em> attacks.</div></div>
+      <div class="stat"><div class="big">83%</div><div class="cap">of <b>Turkish</b> attacks missed by an English-trained jailbreak classifier that catches most English ones. A guard validated in one language can be blind in another.</div></div>
+      <div class="stat"><div class="big">337</div><div class="cap">prompts · 217 injections (EN+TR) · 80 plain benign · 40 security-adjacent benign. 5 reproducible baselines. Open data, Apache-2.0.</div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-label">Finding 1 — the over-refusal cliff</div>
+    <h2>The better a guard catches attacks, the harder it over-blocks security talk</h2>
+    <p class="sub">Over-refusal rate on benign prompts. On <b>plain</b> requests (“Summarize this article.”) almost nobody over-blocks. But on <b>security-adjacent</b> text — a teacher asking “what is a jailbreak?”, an incident report quoting an attacker — over-refusal explodes. Lower is better.</p>
+    <div class="chart">
+      <div class="legend"><span><i style="background:#3a2d33"></i>Plain benign</span><span><i style="background:var(--red)"></i>Security-adjacent benign</span></div>
+      <svg id="chart1" viewBox="0 0 720 300" role="img" aria-label="Over-refusal: plain vs security-adjacent"></svg>
+    </div>
+    <p class="note">Even <b>ProtectAI's</b> widely-deployed detector over-blocks 40% of security-adjacent text. The security-adjacent split is fully held-out for every guard.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-label">Finding 2 — the multilingual blind spot</div>
+    <h2>An English-only guard can be near-blind in Turkish</h2>
+    <p class="sub">Attack miss-rate, English vs Turkish. Same guard, same attacks translated. A guardrail that looks fine on an English leaderboard can miss the overwhelming majority of the same attacks in another language. Lower is better.</p>
+    <div class="chart">
+      <div class="legend"><span><i style="background:#2d3a4a"></i>English miss</span><span><i style="background:var(--red)"></i>Turkish miss</span></div>
+      <svg id="chart2" viewBox="0 0 720 300" role="img" aria-label="Miss-rate: English vs Turkish"></svg>
+    </div>
+    <p class="note">jackhhao's classifier catches 90% of English attacks but misses <b>83%</b> in Turkish. ProtectAI's Turkish over-refusal (25%) also runs above its overall (18%).</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="sec-label">Full leaderboard</div>
+    <h2>Five guardrails, two axes, two languages</h2>
+    <p class="sub">Ranked by F1. Miss-rate &amp; over-refusal: lower is better. Every guard except the AltaySec detector is fully held-out.</p>
+    <div class="tbl-scroll">
+      <table>
+        <thead><tr><th>Guardrail</th><th>Miss ↓</th><th>Over-refusal ↓</th><th>Sec-adj over-refusal ↓</th><th>F1 ↑</th><th>TR miss ↓</th></tr></thead>
+        <tbody id="lb"></tbody>
+      </table>
+    </div>
+    <p class="note"><span class="star">*</span> AltaySec-detector has train-set overlap on injections + plain benign; its security-adjacent column is its only fully held-out result.</p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Add your guardrail</h2>
+    <p class="sub">Wrap Llama Guard, Prompt Guard, Lakera, NeMo Guardrails, or your own model as <span class="mono">guard(text)&nbsp;→&nbsp;0|1</span>, run one command, open a PR. The point is an apples-to-apples, two-axis, multilingual comparison.</p>
+    <div class="btns">
+      <a class="btn primary" href="https://github.com/fevziegeyurtsevenler/guardrail-arena">★ Star &amp; contribute on GitHub</a>
+      <a class="btn" href="https://github.com/fevziegeyurtsevenler/guardrail-arena/blob/main/README.md">Read the docs</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Built by <a href="https://altaysec.com.tr">AltaySec</a> — Türkçe-first AI/LLM security ·
+    <a href="https://github.com/fevziegeyurtsevenler/uncloak">uncloak</a> ·
+    <a href="https://github.com/fevziegeyurtsevenler/hf-dataset-scan">hf-dataset-scan</a> ·
+    <a href="https://huggingface.co/fevziegeyurtsevenler">Hugging Face</a><br>
+    Apache-2.0 · numbers reproduce with <span class="mono">python run_baselines.py</span> · this is a small convenience benchmark, not a safety certificate.
+  </div>
+</footer>
+
+<script>
+const DATA = [
+  {name:"protectai-deberta-v2", miss:0.023, over:0.183, secadj:0.40, f1:0.94, plain:0.075, tr_miss:0.019, en_miss:0.027, star:false},
+  {name:"AltaySec-detector",     miss:0.005, over:0.233, secadj:0.70, f1:0.94, plain:0.00,  tr_miss:0.00,  en_miss:0.009, star:true},
+  {name:"jackhhao-jailbreak",    miss:0.461, over:0.125, secadj:0.25, f1:0.67, plain:0.063, tr_miss:0.832, en_miss:0.10,  star:false},
+  {name:"keyword",               miss:0.880, over:0.125, secadj:0.375,f1:0.20, plain:0.00,  tr_miss:0.907, en_miss:0.855, star:false},
+  {name:"regex-rules",           miss:0.908, over:0.100, secadj:0.30, f1:0.16, plain:0.00,  tr_miss:0.897, en_miss:0.918, star:false},
+];
+const SVGNS="http://www.w3.org/2000/svg";
+function el(t,a){const e=document.createElementNS(SVGNS,t);for(const k in a)e.setAttribute(k,a[k]);return e;}
+function shorten(n){return n.replace("protectai-deberta-v2","protectai").replace("AltaySec-detector","AltaySec*").replace("jackhhao-jailbreak","jackhhao");}
+
+// grouped bar chart: pairs of [a,b] per guard, values 0..1
+function groupedBars(id, keyA, keyB, colorA, colorB){
+  const svg=document.getElementById(id); const W=720,H=300,padL=44,padB=54,padT=12,padR=8;
+  const plotH=H-padB-padT, plotW=W-padL-padR, n=DATA.length, group=plotW/n, bw=Math.min(30,group/3.2);
+  // y gridlines at 0,.25,.5,.75,1
+  [0,.25,.5,.75,1].forEach(v=>{
+    const y=padT+plotH-v*plotH;
+    svg.appendChild(el("line",{x1:padL,y1:y,x2:W-padR,y2:y,stroke:"#241a20","stroke-width":1}));
+    const t=el("text",{x:padL-8,y:y+4,fill:"#7d7378","font-size":11,"text-anchor":"end"});t.textContent=(v*100)+"%";svg.appendChild(t);
+  });
+  DATA.forEach((d,i)=>{
+    const cx=padL+group*i+group/2;
+    const va=d[keyA], vb=d[keyB];
+    const ha=va*plotH, hb=vb*plotH;
+    svg.appendChild(el("rect",{x:cx-bw-3,y:padT+plotH-ha,width:bw,height:ha,rx:3,fill:colorA}));
+    svg.appendChild(el("rect",{x:cx+3,y:padT+plotH-hb,width:bw,height:hb,rx:3,fill:colorB}));
+    // value label on the red (b) bar
+    const lb=el("text",{x:cx+3+bw/2,y:padT+plotH-hb-6,fill:"#ff6b6b","font-size":11,"text-anchor":"middle","font-weight":700});
+    lb.textContent=Math.round(vb*100)+"%";svg.appendChild(lb);
+    // x label
+    const xl=el("text",{x:cx,y:H-padB+20,fill:"#b9adb2","font-size":11,"text-anchor":"middle"});
+    xl.textContent=shorten(d.name);svg.appendChild(xl);
+  });
+}
+groupedBars("chart1","plain","secadj","#3a2d33","#ff3b3b");
+groupedBars("chart2","en_miss","tr_miss","#2d3a4a","#ff3b3b");
+
+// leaderboard
+const lb=document.getElementById("lb");
+const pct=v=>Math.round(v*100)+"%";
+const cls=v=>v>=0.5?"bad":v>=0.2?"warn":"ok";
+DATA.slice().sort((a,b)=>b.f1-a.f1).forEach(d=>{
+  const tr=document.createElement("tr");
+  tr.innerHTML=`<td class="g-name">${d.name}${d.star?' <span class="star">*</span>':''}</td>`+
+    `<td class="${cls(d.miss)}">${pct(d.miss)}</td>`+
+    `<td class="${cls(d.over)}">${pct(d.over)}</td>`+
+    `<td class="${cls(d.secadj)}">${pct(d.secadj)}</td>`+
+    `<td>${d.f1.toFixed(2)}</td>`+
+    `<td class="${cls(d.tr_miss)}">${pct(d.tr_miss)}</td>`;
+  lb.appendChild(tr);
+});
+</script>
+</body>
+</html>

@@ -23,6 +23,7 @@ A guardrail is any callable `guard(text) -> 0 | 1`. Drop yours in, run one comma
 [![benchmark](https://img.shields.io/badge/benchmark-337%20prompts-red)](benchmark/data.jsonl)
 [![languages](https://img.shields.io/badge/languages-EN%20%2B%20TR-red)](benchmark/data.jsonl)
 [![HF dataset](https://img.shields.io/badge/🤗%20dataset-guardrail--arena-yellow)](https://huggingface.co/datasets/fevziegeyurtsevenler/guardrail-arena)
+[![live results](https://img.shields.io/badge/live-results%20%26%20charts-red)](https://fevziegeyurtsevenler.github.io/guardrail-arena/)
 
 ---
 
