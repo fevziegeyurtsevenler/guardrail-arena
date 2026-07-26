@@ -1,8 +1,8 @@
 # core harness needs only PyYAML (for the regex-rules baseline)
 PyYAML>=6.0
-# optional — only for the model baseline in run_baselines.py:
-#   sentence-transformers
-#   scikit-learn
-#   joblib
-#   huggingface_hub
-#   datasets
+
+# optional — for the model baselines in run_baselines.py:
+#   AltaySec-detector : sentence-transformers scikit-learn joblib huggingface_hub
+#   protectai-deberta-v2 / jackhhao-jailbreak : transformers torch
+# install all of them with:
+#   pip install transformers torch sentence-transformers scikit-learn joblib huggingface_hub

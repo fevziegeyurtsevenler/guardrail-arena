@@ -11,7 +11,7 @@ from __future__ import annotations
 import json
 import os
 
-from evaluate import load_benchmark, evaluate, score_batch
+from arena import load_benchmark, evaluate, score_batch
 from guards.baselines import keyword_guard, rules_guard
 
 HERE = os.path.dirname(__file__)
@@ -21,7 +21,7 @@ results = {}
 results["keyword"] = evaluate(keyword_guard, rows)
 results["regex-rules"] = evaluate(rules_guard, rows)
 
-# Optional model baseline
+# Optional model baseline (AltaySec detector — sentence-transformer + LR)
 try:
     import joblib
     from huggingface_hub import hf_hub_download
@@ -37,6 +37,28 @@ try:
     results["AltaySec-detector"] = score_batch(model_batch, rows)
 except Exception as e:  # noqa: BLE001
     print("model baseline skipped:", str(e)[:100])
+
+# Optional third-party open guardrails (popular HF models) — needs `pip install transformers torch`
+THIRD_PARTY = [
+    # (name, model_id, {labels that mean "block/injection"})
+    ("protectai-deberta-v2", "protectai/deberta-v3-base-prompt-injection-v2", {"INJECTION"}),
+    ("jackhhao-jailbreak", "jackhhao/jailbreak-classifier", {"jailbreak", "LABEL_1"}),
+]
+try:
+    from transformers import pipeline
+
+    for name, model_id, pos in THIRD_PARTY:
+        try:
+            pipe = pipeline("text-classification", model=model_id, truncation=True, max_length=512, device=-1)
+
+            def _batch(texts, _pipe=pipe, _pos=pos):
+                return [1 if o["label"] in _pos else 0 for o in _pipe(texts, batch_size=16)]
+
+            results[name] = score_batch(_batch, rows)
+        except Exception as e:  # noqa: BLE001
+            print(f"{name} skipped:", str(e)[:100])
+except ImportError:
+    print("transformers not installed — third-party baselines skipped")
 
 json.dump(results, open(os.path.join(HERE, "results.json"), "w"), indent=2, ensure_ascii=False)
 

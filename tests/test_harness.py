@@ -2,7 +2,7 @@
 import os, sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from evaluate import load_benchmark, evaluate, score_batch
+from arena import load_benchmark, evaluate, score_batch
 
 
 def test_benchmark_wellformed():

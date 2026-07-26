@@ -34,36 +34,43 @@ better for miss-rate and over-refusal; higher for F1. Reproduce with `python run
 <!-- LEADERBOARD:START -->
 | # | Guardrail | Miss-rate ↓ | Over-refusal (all) ↓ | **Over-refusal: security-adjacent** ↓ | F1 ↑ | TR miss | TR over-refusal |
 |---|-----------|:-----------:|:--------------------:|:-------------------------------------:|:----:|:-------:|:---------------:|
-| 1 | **AltaySec-detector** | 0.00 | 0.23 | **0.70** | 0.94 | 0.00 | 0.23 |
-| 2 | **keyword** | 0.88 | 0.12 | **0.38** | 0.20 | 0.91 | 0.08 |
-| 3 | **regex-rules** | 0.91 | 0.10 | **0.30** | 0.16 | 0.90 | 0.10 |
+| 1 | **[protectai-deberta-v2](https://huggingface.co/protectai/deberta-v3-base-prompt-injection-v2)** | 0.02 | 0.18 | **0.40** | 0.94 | 0.02 | 0.25 |
+| 2 | **AltaySec-detector** \* | 0.00 | 0.23 | **0.70** | 0.94 | 0.00 | 0.23 |
+| 3 | **[jackhhao-jailbreak](https://huggingface.co/jackhhao/jailbreak-classifier)** | 0.46 | 0.12 | **0.25** | 0.67 | **0.83** | 0.00 |
+| 4 | **keyword** | 0.88 | 0.12 | **0.38** | 0.20 | 0.91 | 0.08 |
+| 5 | **regex-rules** | 0.91 | 0.10 | **0.30** | 0.16 | 0.90 | 0.10 |
 <!-- LEADERBOARD:END -->
 
-> **Honest note on the detector's numbers.** The `AltaySec-detector` baseline was *trained* on
-> this benchmark's injection payloads and its *plain* benign prompts, so its 0.00 miss-rate and
-> 0.00 plain-over-refusal are **in-distribution** — treat them as an upper bound, not
-> generalization. The **security-adjacent** benign prompts are genuinely held-out for all three
-> guards, which is why that column is the fair, un-gameable comparison. See
-> [Limitations](#-honesty--limitations).
+> **\* Fairness note.** `AltaySec-detector` was *trained* on this benchmark's injection payloads
+> and its *plain* benign prompts, so its 0.00 miss-rate is **in-distribution** — an upper bound, not
+> generalization. **Every other guard, including ProtectAI's and jackhhao's popular open models, is
+> fully held-out.** The **security-adjacent** column is held-out for *all* guards, so it's the
+> fair, un-gameable comparison. See [Limitations](#-honesty--limitations).
 
-## 🔎 The finding
+## 🔎 Two findings that only show up on the second axis
 
-The most interesting result isn't who wins — it's the **over-refusal cliff on security-adjacent text**:
+**1. The over-refusal cliff.** Nobody over-blocks *plain* requests — but on *security-adjacent*
+text (legitimate content that discusses or quotes attacks), over-refusal explodes:
 
 | Guard | Over-refusal on *plain* requests | Over-refusal on *security-adjacent* text |
 |-------|:--------------------------------:|:----------------------------------------:|
-| keyword | 0% | **38%** |
-| regex-rules | 0% | **30%** |
+| regex-rules | 6% | **30%** |
+| keyword | 8% | **38%** |
+| **protectai-deberta-v2** (industry standard) | 8% | **40%** |
 | AltaySec-detector | 0% | **70%** |
 
-Nobody blocks *"Summarize this article."* But the **better a guard is at catching attacks, the
-harder it over-blocks legitimate security discussion.** The ML detector that catches every attack
-also refuses **7 out of 10** benign prompts that merely *mention* one. That trade-off is invisible
-on a normal attack-only benchmark — and it's exactly where guardrails hurt real products:
-security teams, SOC copilots, compliance tooling, and support bots that quote user reports.
+Even ProtectAI's widely-deployed detector — a fine attack-catcher — refuses **4 out of 10** benign
+prompts that merely *mention* an attack. That trade-off is invisible on a normal attack-only
+benchmark, and it's exactly where guardrails break real products: security teams, SOC copilots,
+compliance tooling, and support bots that quote user reports.
 
-This is the core thesis of the arena: **over-defense is a first-class failure mode.** A guardrail
-you can't measure on both axes is a guardrail you can't tune.
+**2. The multilingual blind spot.** `jackhhao-jailbreak`, an English-trained classifier, misses
+**83% of Turkish attacks** while catching most English ones — and ProtectAI's Turkish over-refusal
+(25%) runs higher than its overall (18%). A guardrail validated only in English can be near-blind
+in another language while looking fine on an English leaderboard.
+
+Together: **over-defense and monolingual bias are first-class failure modes.** A guardrail you
+can't measure on both axes, in more than one language, is a guardrail you can't safely deploy.
 
 ## 🚀 Quickstart — score your own guardrail
 
@@ -72,7 +79,7 @@ pip install -r requirements.txt
 ```
 
 ```python
-from evaluate import evaluate, load_benchmark
+from arena import evaluate, load_benchmark
 
 # a guardrail is any callable: text -> 1 (block) / 0 (allow)
 def my_guard(text: str) -> int:
@@ -82,11 +89,16 @@ print(evaluate(my_guard, load_benchmark())["overall"])
 # {'miss_rate': ..., 'over_refusal_rate': ..., 'f1': ..., ...}
 ```
 
-Reproduce the full leaderboard (keyword + regex-rules + the HF detector):
+Reproduce the full leaderboard (keyword + regex-rules + the AltaySec detector + the two open HF
+guards — ProtectAI deberta-v2 and jackhhao jailbreak-classifier):
 
 ```bash
+pip install transformers torch sentence-transformers scikit-learn joblib huggingface_hub   # for the model baselines
 python run_baselines.py     # writes results.json + LEADERBOARD.md
 ```
+
+The keyword and regex-rules baselines need no extra deps; the model baselines are skipped
+gracefully if `transformers` / `sentence-transformers` aren't installed.
 
 Batch guards (e.g. an embedding model) implement `guard(list[str]) -> list[int]` and use
 `score_batch`. See [`run_baselines.py`](run_baselines.py) for a worked model example.

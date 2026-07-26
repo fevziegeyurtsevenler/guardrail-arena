@@ -103,5 +103,75 @@
         "accuracy": 0.9162
       }
     }
+  },
+  "protectai-deberta-v2": {
+    "overall": {
+      "n": 337,
+      "injection_recall": 0.977,
+      "miss_rate": 0.023,
+      "over_refusal_rate": 0.1833,
+      "benign_specificity": 0.8167,
+      "f1": 0.9401,
+      "accuracy": 0.9199
+    },
+    "over_refusal_by_benign_category": {
+      "benign-plain": 0.075,
+      "benign-security-adjacent": 0.4
+    },
+    "by_language": {
+      "en": {
+        "n": 170,
+        "injection_recall": 0.9727,
+        "miss_rate": 0.0273,
+        "over_refusal_rate": 0.1167,
+        "benign_specificity": 0.8833,
+        "f1": 0.9554,
+        "accuracy": 0.9412
+      },
+      "tr": {
+        "n": 167,
+        "injection_recall": 0.9813,
+        "miss_rate": 0.0187,
+        "over_refusal_rate": 0.25,
+        "benign_specificity": 0.75,
+        "f1": 0.9251,
+        "accuracy": 0.8982
+      }
+    }
+  },
+  "jackhhao-jailbreak": {
+    "overall": {
+      "n": 337,
+      "injection_recall": 0.5392,
+      "miss_rate": 0.4608,
+      "over_refusal_rate": 0.125,
+      "benign_specificity": 0.875,
+      "f1": 0.6705,
+      "accuracy": 0.6588
+    },
+    "over_refusal_by_benign_category": {
+      "benign-plain": 0.0625,
+      "benign-security-adjacent": 0.25
+    },
+    "by_language": {
+      "en": {
+        "n": 170,
+        "injection_recall": 0.9,
+        "miss_rate": 0.1,
+        "over_refusal_rate": 0.25,
+        "benign_specificity": 0.75,
+        "f1": 0.8839,
+        "accuracy": 0.8471
+      },
+      "tr": {
+        "n": 167,
+        "injection_recall": 0.1682,
+        "miss_rate": 0.8318,
+        "over_refusal_rate": 0.0,
+        "benign_specificity": 1.0,
+        "f1": 0.288,
+        "accuracy": 0.4671
+      }
+    }
   }
 }
