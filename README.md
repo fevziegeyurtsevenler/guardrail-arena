@@ -193,3 +193,10 @@ a small, open, reproducible way to see both sides of the trade-off before you de
 ```
 
 Apache-2.0 · built by **[AltaySec](https://altaysec.com.tr)** — Türkçe-first AI/LLM security.
+
+---
+
+## İlgili AltaySec Kaynakları
+
+- 📖 [Over-Refusal Nedir? Türkçe'de Aşırı Red Uçurumu](https://altaysec.com.tr/arastirmalar/turkce-asiri-red-over-refusal-olcumu) — konunun derinlemesine Türkçe analizi
+- 🌐 [AltaySec Araştırmalar](https://altaysec.com.tr/arastirmalar/) — Türkçe yapay zekâ güvenliği yazıları
