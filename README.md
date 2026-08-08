@@ -24,6 +24,7 @@ A guardrail is any callable `guard(text) -> 0 | 1`. Drop yours in, run one comma
 [![languages](https://img.shields.io/badge/languages-EN%20%2B%20TR-red)](benchmark/data.jsonl)
 [![HF dataset](https://img.shields.io/badge/🤗%20dataset-guardrail--arena-yellow)](https://huggingface.co/datasets/fevziegeyurtsevenler/guardrail-arena)
 [![live results](https://img.shields.io/badge/live-results%20%26%20charts-red)](https://fevziegeyurtsevenler.github.io/guardrail-arena/)
+[![CI](https://github.com/fevziegeyurtsevenler/guardrail-arena/actions/workflows/ci.yml/badge.svg)](https://github.com/fevziegeyurtsevenler/guardrail-arena/actions/workflows/ci.yml)
 
 ---
 
@@ -179,6 +180,8 @@ a small, open, reproducible way to see both sides of the trade-off before you de
 - 🧪 [**prompt-injection-corpus**](https://github.com/fevziegeyurtsevenler/prompt-injection-corpus) — the multilingual injection source
 - 🤗 [**turkish-prompt-injection-detector**](https://huggingface.co/fevziegeyurtsevenler/turkish-prompt-injection-detector) — the model behind the `AltaySec-detector` baseline
 - 🌐 [AltaySec](https://altaysec.com.tr) · [Açık Kaynak Lab](https://altaysec.com.tr/acik-kaynak)
+
+Part of the Turkish AI security ecosystem → [LLM-Security-Turkiye](https://github.com/fevziegeyurtsevenler/LLM-Security-Turkiye)
 
 ## Citation
 
