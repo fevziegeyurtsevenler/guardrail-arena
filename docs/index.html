@@ -8,6 +8,22 @@
 <meta property="og:title" content="guardrail-arena — the over-refusal cliff, visualized">
 <meta property="og:description" content="The best attack-catcher is the worst over-blocker. And an English-trained guard misses 83% of Turkish attacks. Two-axis, multilingual guardrail benchmark.">
 <meta property="og:type" content="website">
+<link rel="canonical" href="https://fevziegeyurtsevenler.github.io/guardrail-arena/">
+<meta property="og:url" content="https://fevziegeyurtsevenler.github.io/guardrail-arena/">
+<meta name="twitter:card" content="summary">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  "name": "guardrail-arena",
+  "description": "Two-axis, multilingual (EN+TR) benchmark for LLM prompt-injection guardrails: measures attack miss-rate and over-refusal on security-adjacent text, in English and Turkish. 337 prompts, 5 reproducible baselines.",
+  "url": "https://fevziegeyurtsevenler.github.io/guardrail-arena/",
+  "sameAs": "https://github.com/fevziegeyurtsevenler/guardrail-arena",
+  "license": "https://www.apache.org/licenses/LICENSE-2.0",
+  "creator": {"@type": "Organization", "name": "AltaySec", "url": "https://altaysec.com.tr"},
+  "distribution": [{"@type": "DataDownload", "contentUrl": "https://huggingface.co/datasets/fevziegeyurtsevenler/guardrail-arena"}]
+}
+</script>
 <style>
   :root{--bg:#08060a;--panel:#100b12;--line:#241a20;--red:#ff3b3b;--red2:#ff6b6b;--ink:#f5f0f0;--mut:#b9adb2;--mut2:#7d7378;--green:#57d9a3;--amber:#ffb057}
   *{box-sizing:border-box;margin:0;padding:0}
@@ -119,7 +135,13 @@
     <div class="tbl-scroll">
       <table>
         <thead><tr><th>Guardrail</th><th>Miss ↓</th><th>Over-refusal ↓</th><th>Sec-adj over-refusal ↓</th><th>F1 ↑</th><th>TR miss ↓</th></tr></thead>
-        <tbody id="lb"></tbody>
+        <tbody id="lb">
+          <tr><td class="g-name">protectai-deberta-v2</td><td class="ok">2%</td><td class="ok">18%</td><td class="warn">40%</td><td>0.94</td><td class="ok">2%</td></tr>
+          <tr><td class="g-name">AltaySec-detector <span class="star">*</span></td><td class="ok">1%</td><td class="warn">23%</td><td class="bad">70%</td><td>0.94</td><td class="ok">0%</td></tr>
+          <tr><td class="g-name">jackhhao-jailbreak</td><td class="warn">46%</td><td class="ok">13%</td><td class="warn">25%</td><td>0.67</td><td class="bad">83%</td></tr>
+          <tr><td class="g-name">keyword</td><td class="bad">88%</td><td class="ok">13%</td><td class="warn">38%</td><td>0.20</td><td class="bad">91%</td></tr>
+          <tr><td class="g-name">regex-rules</td><td class="bad">91%</td><td class="ok">10%</td><td class="warn">30%</td><td>0.16</td><td class="bad">90%</td></tr>
+        </tbody>
       </table>
     </div>
     <p class="note"><span class="star">*</span> AltaySec-detector has train-set overlap on injections + plain benign; its security-adjacent column is its only fully held-out result.</p>
@@ -188,6 +210,7 @@ groupedBars("chart2","en_miss","tr_miss","#2d3a4a","#ff3b3b");
 
 // leaderboard
 const lb=document.getElementById("lb");
+lb.innerHTML="";
 const pct=v=>Math.round(v*100)+"%";
 const cls=v=>v>=0.5?"bad":v>=0.2?"warn":"ok";
 DATA.slice().sort((a,b)=>b.f1-a.f1).forEach(d=>{
